@@ -1,3 +1,4 @@
+import sys
 import discord
 import yt_dlp
 from discord.ext import commands
@@ -31,6 +32,7 @@ bot.doom = False
 
 executor = ThreadPoolExecutor(max_workers=4)
 
+cookiefile = sys.argv[2] if len(sys.argv) > 2 else ''
 
 async def embeded(ctx, msg, thumbna):
     embed= discord.Embed(
@@ -55,7 +57,8 @@ async def search_video(ctx, urlq):
                 }],
                 'default_search': 'auto',
                 'noplaylist': True,
-                'verbose': True
+                'verbose': True,
+                'cookiefile': cookiefile
     }
     yt_search = yt_dlp.YoutubeDL(yt_opts)
     loop = asyncio.get_event_loop()
@@ -84,7 +87,8 @@ async def playlist(ctx, urlq):
             'noplaylist': False,
             'ignoreerrors': True,
             'flat_playlist': True,
-            'verbose': True
+            'verbose': True,
+	    'cookiefile': cookiefile
 }
     playlist_search = yt_dlp.YoutubeDL(pl_opts)
     loop = asyncio.get_event_loop()
@@ -231,7 +235,7 @@ async def play_now(ctx, url):
             
     embed_msg = f'{url[0]}  {actual_url.pop(0)}'
     thumb = f'{thumb_url.pop(0)}'
-    await embeded(ctx, embed_msg, thumb)          
+    # await embeded(ctx, embed_msg, thumb)          
     voice_client.play(discord.FFmpegPCMAudio(url[1], **ffmpeg_options), after=lambda e: after(e))
         
  
@@ -308,7 +312,20 @@ async def stop(ctx):
         embed = discord.Embed(title='Error', description="i'm not playing anything.", colour=discord.Colour.brand_red())
         await ctx.send(embed=embed)
         
-
+@bot.command(name='queue', help='shows the current music queue')
+@commands.cooldown(1, 2, commands.BucketType.user)
+async def show_queue(ctx):
+    global queue
+    if len(queue) == 0:
+        embed = discord.Embed(title='Queue is empty', colour=discord.Colour.dark_blue())
+        await ctx.send(embed=embed)
+        return
+    else:
+        embed = discord.Embed(title='Music Queue', colour=discord.Colour.dark_blue())
+        for i in range(len(queue)):
+            embed.add_field(name=f'{i+1}. {queue[i][0]}', value=f'{actual_url[i]}', inline=False)
+        await ctx.send(embed=embed)
+        return
 
 class MyHelp(commands.HelpCommand):
     async def send_bot_help(self, mapping):
@@ -323,5 +340,9 @@ class MyHelp(commands.HelpCommand):
         
 bot.help_command = MyHelp()
 
-# Run the bot with your token
-bot.run('Your_bot_key_here')
+try: 
+    with open(sys.argv[1], 'r') as token_file:
+        token = token_file.read().strip()
+    bot.run(token)
+except IndexError:
+    print("Provide the token file path as a command line argument.")

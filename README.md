@@ -1,3 +1,35 @@
+# music-bot-yt-dlp
+Modifications of code from SpaceCowboyZZ after I got tired of trying to make another bot work.
+
+## Building:
+Per usual, virtual environments are preferred, but not required.
+
+```python
+pip install -r requirements.txt
+```
+
+You must also [install ffmpeg](https://ffmpeg.org/download.html).
+
+## Running:
+```python
+python main.py [path to bot token config] [optional: path to cookies file]
+```
+
+Example bot token file:
+```
+bot token here
+```
+
+## Potential Problems
+YouTube will definently block you. You may have some initial luck, but they work fast.
+
+[Use a throwaway account and extract the cookies per the yt-dlp wiki.](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp) You can then pass in the path to the cookies file.
+
+If everything else fails, [see if yt-dlp has an update](https://github.com/yt-dlp/yt-dlp), then rerun the [Building](#building) section code again.
+
+---
+*Original message from SpaceCowboyZZ below.*
+
 It's very basic, and I don't plan on making it more complex, but it still needs some improvements regarding the queue. More testing is needed, but it works.
 
 Here's how it works:
